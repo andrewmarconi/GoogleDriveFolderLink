@@ -191,6 +191,7 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
     await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
       frontmatter["googleDriveFolderId"] = folder.id;
       frontmatter["googleDriveFolderName"] = folder.name;
+      frontmatter["googleDriveFolderUrl"] = buildFolderUrl(folder.id);
     });
     new Notice(`Attached: ${folder.name}`);
   }
