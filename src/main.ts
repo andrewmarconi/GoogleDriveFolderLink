@@ -1,12 +1,14 @@
 import { Notice, Plugin } from "obsidian";
 import { PluginSettings, DEFAULT_SETTINGS } from "./types";
 import { startAuthFlow, getValidAccessToken } from "./auth";
+import { DriveLinkSettingsTab } from "./settings";
 
 export default class GoogleDriveFolderLinkPlugin extends Plugin {
   settings: PluginSettings = DEFAULT_SETTINGS;
 
   async onload() {
     await this.loadSettings();
+    this.addSettingTab(new DriveLinkSettingsTab(this.app, this));
   }
 
   onunload() {}
@@ -51,6 +53,19 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
     this.settings.accountEmail = null;
     this.saveSettings();
     new Notice("Disconnected from Google Drive.");
+  }
+
+  openRootPickerModal(onDone: () => void): void {
+    new Notice("Root picker not yet implemented");
+  }
+
+  removeRoot(rootId: string): void {
+    this.settings.roots = this.settings.roots.filter((r) => r.id !== rootId);
+    this.saveSettings();
+  }
+
+  async refreshFolderCache(): Promise<void> {
+    new Notice("Folder cache not yet implemented");
   }
 
   async getAccessToken(): Promise<string> {
