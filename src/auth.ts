@@ -1,5 +1,6 @@
 import { requestUrl } from "obsidian";
 import * as http from "http";
+import type { GoogleTokenResponse, GoogleAboutResponse } from "./types";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -107,10 +108,10 @@ async function exchangeCodeForTokens(
       grant_type: "authorization_code",
     }).toString(),
   });
-  const data = response.json;
+  const data = response.json as GoogleTokenResponse;
   return {
     accessToken: data.access_token,
-    refreshToken: data.refresh_token,
+    refreshToken: data.refresh_token ?? "",
     expiresAt: Date.now() + data.expires_in * 1000,
   };
 }
@@ -131,7 +132,7 @@ export async function refreshAccessToken(
       grant_type: "refresh_token",
     }).toString(),
   });
-  const data = response.json;
+  const data = response.json as GoogleTokenResponse;
   return {
     accessToken: data.access_token,
     expiresAt: Date.now() + data.expires_in * 1000,
@@ -143,7 +144,8 @@ async function fetchUserEmail(accessToken: string): Promise<string> {
     url: `${DRIVE_ABOUT_URL}?fields=user`,
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  return response.json.user?.emailAddress ?? "unknown";
+  const data = response.json as GoogleAboutResponse;
+  return data.user?.emailAddress ?? "unknown";
 }
 
 export async function getValidAccessToken(
