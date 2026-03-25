@@ -49,6 +49,7 @@ export class DriveLinkSettingsTab extends PluginSettingTab {
         .setName("Client Secret")
         .setDesc("From your Google Cloud Console OAuth credentials")
         .addText((text) => {
+          text.inputEl.type = "password";
           text
             .setPlaceholder("Enter Client Secret")
             .setValue(this.plugin.settings.clientSecret)

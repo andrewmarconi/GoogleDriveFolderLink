@@ -51,7 +51,7 @@ function listenForAuthCode(
         return;
       }
 
-      if (code) {
+      else if (code) {
         res.writeHead(200, { "Content-Type": "text/html" });
         res.end(
           "<html><body><h2>Authorization successful!</h2><p>You can close this tab and return to Obsidian.</p></body></html>"
@@ -61,6 +61,9 @@ function listenForAuthCode(
           typeof addr === "object" && addr !== null ? addr.port : 0;
         server.close();
         resolve({ code, redirectUri: `http://127.0.0.1:${port}` });
+      } else {
+        res.writeHead(404);
+        res.end();
       }
     });
 

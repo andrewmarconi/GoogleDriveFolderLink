@@ -3,6 +3,13 @@ import type { DriveFolder, DriveInfo } from "./types";
 
 const DRIVE_API_BASE = "https://www.googleapis.com/drive/v3";
 
+function validateDriveId(id: string): string {
+  if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+    throw new Error(`Invalid Drive ID: ${id}`);
+  }
+  return id;
+}
+
 export async function listSharedDrives(
   accessToken: string
 ): Promise<DriveInfo[]> {
@@ -42,7 +49,7 @@ export async function listFolders(
 ): Promise<DriveFolder[]> {
   const folders: DriveFolder[] = [];
   let pageToken: string | undefined;
-  const q = `mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`;
+  const q = `mimeType='application/vnd.google-apps.folder' and '${validateDriveId(parentId)}' in parents and trashed=false`;
 
   do {
     const params = new URLSearchParams({
@@ -123,7 +130,7 @@ export async function getFolderMetadata(
     supportsAllDrives: "true",
   });
   const response = await requestUrl({
-    url: `${DRIVE_API_BASE}/files/${folderId}?${params}`,
+    url: `${DRIVE_API_BASE}/files/${validateDriveId(folderId)}?${params}`,
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   return response.json;

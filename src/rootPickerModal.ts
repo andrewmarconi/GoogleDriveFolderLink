@@ -34,7 +34,9 @@ export class DriveSelectModal extends SuggestModal<DriveOption> {
       ];
       this.setPlaceholder("Select a drive...");
       // Trigger re-render
-      (this as any).updateSuggestions();
+      if (typeof (this as any).updateSuggestions === "function") {
+        (this as any).updateSuggestions();
+      }
     } catch (e) {
       new Notice(
         `Failed to load drives: ${e instanceof Error ? e.message : String(e)}`
@@ -84,15 +86,16 @@ class FolderSearchModal extends SuggestModal<DriveFolder> {
           this.driveId
         );
         // Trigger re-render
-        (this as any).updateSuggestions();
+        if (typeof (this as any).updateSuggestions === "function") {
+          (this as any).updateSuggestions();
+        }
       } catch (e) {
         new Notice(
           `Search failed: ${e instanceof Error ? e.message : String(e)}`
         );
       }
     },
-    300,
-    true
+    300
   );
 
   constructor(

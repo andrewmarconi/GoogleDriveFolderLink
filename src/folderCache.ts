@@ -68,18 +68,20 @@ export class FolderCache {
     root: DriveRoot,
     getAccessToken: () => Promise<string>
   ): Promise<void> {
+    this.abort();
+    this.abortController = new AbortController();
+    const signal = this.abortController.signal;
+
     this._state = "crawling";
     this._error = null;
     try {
-      await this.crawlRoot(
-        root,
-        getAccessToken,
-        new AbortController().signal
-      );
+      await this.crawlRoot(root, getAccessToken, signal);
       this._state = "idle";
     } catch (e) {
-      this._state = "error";
-      this._error = e instanceof Error ? e.message : String(e);
+      if (!signal.aborted) {
+        this._state = "error";
+        this._error = e instanceof Error ? e.message : String(e);
+      }
     }
   }
 

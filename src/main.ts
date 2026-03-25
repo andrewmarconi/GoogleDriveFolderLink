@@ -78,7 +78,9 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
     );
 
     if (this.isConnected) {
-      this.refreshFolderCache();
+      this.refreshFolderCache().catch((e) => {
+        console.error("Initial folder cache refresh failed:", e);
+      });
     }
   }
 
@@ -87,7 +89,11 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.settings = Object.assign(
+      {},
+      { ...DEFAULT_SETTINGS, roots: [...DEFAULT_SETTINGS.roots] },
+      await this.loadData()
+    );
   }
 
   async saveSettings() {
@@ -119,12 +125,14 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
     }
   }
 
-  disconnect(): void {
+  async disconnect(): Promise<void> {
+    this.folderCache.abort();
+    this.folderCache.clear();
     this.settings.accessToken = null;
     this.settings.refreshToken = null;
     this.settings.tokenExpiry = null;
     this.settings.accountEmail = null;
-    this.saveSettings();
+    await this.saveSettings();
     new Notice("Disconnected from Google Drive.");
   }
 
