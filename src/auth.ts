@@ -3,8 +3,8 @@ import * as http from "http";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
-const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
-const SCOPES = "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email";
+const DRIVE_ABOUT_URL = "https://www.googleapis.com/drive/v3/about";
+const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
 export interface AuthTokens {
   accessToken: string;
@@ -137,10 +137,10 @@ export async function refreshAccessToken(
 
 async function fetchUserEmail(accessToken: string): Promise<string> {
   const response = await requestUrl({
-    url: GOOGLE_USERINFO_URL,
+    url: `${DRIVE_ABOUT_URL}?fields=user`,
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  return response.json.email;
+  return response.json.user?.emailAddress ?? "unknown";
 }
 
 export async function getValidAccessToken(
