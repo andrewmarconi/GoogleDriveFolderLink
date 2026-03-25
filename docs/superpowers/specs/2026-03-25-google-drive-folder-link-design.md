@@ -140,8 +140,8 @@ Two-step flow for adding root folders in settings.
 
 **Step 2 — Folder search:** `FuzzySuggestModal<DriveFolder>`
 
-- Live API search (not cached) within the selected drive
-- Scoped to the drive's root
+- Live API search (not cached) within the selected drive using `files.list` with `name contains '<query>'` filtered to folders
+- Debounced per-keystroke queries scoped to the selected drive
 - On choose: adds folder as new root in settings, triggers cache crawl for it
 
 ### 6. Settings Tab (`settings.ts`)
