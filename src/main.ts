@@ -2,16 +2,24 @@ import { Notice, Plugin } from "obsidian";
 import { PluginSettings, DEFAULT_SETTINGS } from "./types";
 import { startAuthFlow, getValidAccessToken } from "./auth";
 import { DriveLinkSettingsTab } from "./settings";
+import { FolderCache } from "./folderCache";
 
 export default class GoogleDriveFolderLinkPlugin extends Plugin {
   settings: PluginSettings = DEFAULT_SETTINGS;
+  folderCache: FolderCache = new FolderCache();
 
   async onload() {
     await this.loadSettings();
     this.addSettingTab(new DriveLinkSettingsTab(this.app, this));
+
+    if (this.isConnected) {
+      this.refreshFolderCache();
+    }
   }
 
-  onunload() {}
+  onunload() {
+    this.folderCache.abort();
+  }
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -61,11 +69,18 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
 
   removeRoot(rootId: string): void {
     this.settings.roots = this.settings.roots.filter((r) => r.id !== rootId);
+    this.folderCache.removeRoot(rootId);
     this.saveSettings();
   }
 
   async refreshFolderCache(): Promise<void> {
-    new Notice("Folder cache not yet implemented");
+    const enabledRoots = this.settings.roots.filter((r) => r.enabled);
+    if (enabledRoots.length === 0) return;
+    this.folderCache.clear();
+    await this.folderCache.crawlRoots(
+      enabledRoots,
+      () => this.getAccessToken()
+    );
   }
 
   async getAccessToken(): Promise<string> {
