@@ -1,0 +1,9 @@
+{
+  "id": "google-drive-folder-link",
+  "name": "Google Drive Folder Link",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "Attach Google Drive folders to notes via fuzzy search",
+  "author": "Andrew Marconi",
+  "isDesktopOnly": true
+}

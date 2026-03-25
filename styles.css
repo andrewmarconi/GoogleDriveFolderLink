@@ -1,0 +1,7 @@
+.google-drive-folder-link {
+  cursor: pointer;
+  color: var(--text-accent);
+}
+.google-drive-folder-link:hover {
+  text-decoration: underline;
+}
