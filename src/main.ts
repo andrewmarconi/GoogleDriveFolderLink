@@ -38,7 +38,7 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
         if (file && file.extension === "md") {
           const frontmatter =
             this.app.metadataCache.getFileCache(file)?.frontmatter;
-          if (frontmatter?.googleDriveFolderId) {
+          if (frontmatter?.googleDriveFolderUrl) {
             if (!checking) {
               this.openAttachedFolder(file);
             }
@@ -63,7 +63,7 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
 
           const frontmatter =
             this.app.metadataCache.getFileCache(file)?.frontmatter;
-          if (frontmatter?.googleDriveFolderId) {
+          if (frontmatter?.googleDriveFolderUrl) {
             menu.addItem((item) => {
               item
                 .setTitle("Open Google Drive folder")
@@ -77,8 +77,6 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
       })
     );
 
-    this.registerPropertyWidget();
-
     if (this.isConnected) {
       this.refreshFolderCache();
     }
@@ -86,41 +84,6 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
 
   onunload() {
     this.folderCache.abort();
-  }
-
-  private registerPropertyWidget(): void {
-    this.registerEvent(
-      this.app.workspace.on("layout-change", () => {
-        this.patchPropertyElements();
-      })
-    );
-    this.registerEvent(
-      this.app.workspace.on("active-leaf-change", () => {
-        setTimeout(() => this.patchPropertyElements(), 100);
-      })
-    );
-  }
-
-  private patchPropertyElements(): void {
-    const propertyEls = document.querySelectorAll(
-      '.metadata-property[data-property-key="googleDriveFolderId"] .metadata-property-value'
-    );
-    propertyEls.forEach((propEl) => {
-      if (propEl.querySelector(".google-drive-folder-link")) return;
-      const input = propEl.querySelector("input");
-      const folderId = input?.value?.trim();
-      if (!folderId) return;
-
-      const link = document.createElement("a");
-      link.textContent = "Open Google Drive Folder";
-      link.className = "google-drive-folder-link";
-      link.href = buildFolderUrl(folderId);
-      link.addEventListener("click", (e) => {
-        e.preventDefault();
-        window.open(buildFolderUrl(folderId));
-      });
-      propEl.appendChild(link);
-    });
   }
 
   async loadSettings() {
@@ -178,20 +141,18 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
   openAttachedFolder(file: TFile): void {
     const frontmatter =
       this.app.metadataCache.getFileCache(file)?.frontmatter;
-    const folderId = frontmatter?.googleDriveFolderId;
-    if (!folderId) {
+    const url = frontmatter?.googleDriveFolderUrl;
+    if (!url) {
       new Notice("No Google Drive folder attached to this note.");
       return;
     }
-    const url = buildFolderUrl(folderId);
     window.open(url);
   }
 
   async attachFolderToFile(file: TFile, folder: CachedFolder): Promise<void> {
+    const url = buildFolderUrl(folder.id);
     await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
-      frontmatter["googleDriveFolderId"] = folder.id;
-      frontmatter["googleDriveFolderName"] = folder.name;
-      frontmatter["googleDriveFolderUrl"] = buildFolderUrl(folder.id);
+      frontmatter["googleDriveFolderUrl"] = url;
     });
     new Notice(`Attached: ${folder.name}`);
   }
