@@ -1,8 +1,9 @@
-import { Notice, Plugin } from "obsidian";
-import { PluginSettings, DEFAULT_SETTINGS } from "./types";
+import { Menu, Notice, Plugin, TAbstractFile, TFile } from "obsidian";
+import { PluginSettings, DEFAULT_SETTINGS, CachedFolder } from "./types";
 import { startAuthFlow, getValidAccessToken } from "./auth";
 import { DriveLinkSettingsTab } from "./settings";
 import { FolderCache } from "./folderCache";
+import { AttachDriveFolderModal } from "./attachModal";
 
 export default class GoogleDriveFolderLinkPlugin extends Plugin {
   settings: PluginSettings = DEFAULT_SETTINGS;
@@ -11,6 +12,36 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
   async onload() {
     await this.loadSettings();
     this.addSettingTab(new DriveLinkSettingsTab(this.app, this));
+
+    this.addCommand({
+      id: "attach-google-drive-folder",
+      name: "Attach Google Drive folder...",
+      checkCallback: (checking) => {
+        const file = this.app.workspace.getActiveFile();
+        if (file && file.extension === "md") {
+          if (!checking) {
+            new AttachDriveFolderModal(this, file).open();
+          }
+          return true;
+        }
+        return false;
+      },
+    });
+
+    this.registerEvent(
+      this.app.workspace.on("file-menu", (menu: Menu, file: TAbstractFile) => {
+        if (file instanceof TFile && file.extension === "md") {
+          menu.addItem((item) => {
+            item
+              .setTitle("Attach Google Drive folder...")
+              .setIcon("link")
+              .onClick(() => {
+                new AttachDriveFolderModal(this, file).open();
+              });
+          });
+        }
+      })
+    );
 
     if (this.isConnected) {
       this.refreshFolderCache();
@@ -71,6 +102,14 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
     this.settings.roots = this.settings.roots.filter((r) => r.id !== rootId);
     this.folderCache.removeRoot(rootId);
     this.saveSettings();
+  }
+
+  async attachFolderToFile(file: TFile, folder: CachedFolder): Promise<void> {
+    await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+      frontmatter["googleDriveFolderId"] = folder.id;
+      frontmatter["googleDriveFolderName"] = folder.name;
+    });
+    new Notice(`Attached: ${folder.name}`);
   }
 
   async refreshFolderCache(): Promise<void> {
