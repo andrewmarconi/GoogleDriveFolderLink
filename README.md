@@ -2,6 +2,8 @@
 
 An Obsidian plugin that lets you attach a Google Drive folder to a note via fuzzy search. Search across configured root folders in My Drive and Shared Drives, and access linked folders with one click from the note's properties pane.
 
+![Google Drive Folder Link Plugin for Obsidian](./docs/project.jpg)
+
 ## Features
 
 - Fuzzy search across Google Drive folders within configured root folders
