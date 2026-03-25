@@ -77,6 +77,8 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
       })
     );
 
+    this.registerPropertyWidget();
+
     if (this.isConnected) {
       this.refreshFolderCache();
     }
@@ -84,6 +86,41 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
 
   onunload() {
     this.folderCache.abort();
+  }
+
+  private registerPropertyWidget(): void {
+    this.registerEvent(
+      this.app.workspace.on("layout-change", () => {
+        this.patchPropertyElements();
+      })
+    );
+    this.registerEvent(
+      this.app.workspace.on("active-leaf-change", () => {
+        setTimeout(() => this.patchPropertyElements(), 100);
+      })
+    );
+  }
+
+  private patchPropertyElements(): void {
+    const propertyEls = document.querySelectorAll(
+      '.metadata-property[data-property-key="googleDriveFolderId"] .metadata-property-value'
+    );
+    propertyEls.forEach((propEl) => {
+      if (propEl.querySelector(".google-drive-folder-link")) return;
+      const input = propEl.querySelector("input");
+      const folderId = input?.value?.trim();
+      if (!folderId) return;
+
+      const link = document.createElement("a");
+      link.textContent = "Open Google Drive Folder";
+      link.className = "google-drive-folder-link";
+      link.href = buildFolderUrl(folderId);
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.open(buildFolderUrl(folderId));
+      });
+      propEl.appendChild(link);
+    });
   }
 
   async loadSettings() {
