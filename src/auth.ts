@@ -4,7 +4,7 @@ import * as http from "http";
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
-const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
+const SCOPES = "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email";
 
 export interface AuthTokens {
   accessToken: string;
