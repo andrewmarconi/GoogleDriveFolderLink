@@ -56,10 +56,10 @@ function listenForAuthCode(
         res.end(
           "<html><body><h2>Authorization successful!</h2><p>You can close this tab and return to Obsidian.</p></body></html>"
         );
-        server.close();
         const addr = server.address();
         const port =
           typeof addr === "object" && addr !== null ? addr.port : 0;
+        server.close();
         resolve({ code, redirectUri: `http://127.0.0.1:${port}` });
       }
     });
