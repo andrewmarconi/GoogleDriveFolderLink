@@ -28,7 +28,7 @@ This plugin requires each user to create their own Google Cloud OAuth credential
    - **If you are using a Google Workspace account:** Select **Internal** as the app type. This makes the app available to users within your organization without further review.
    - **If you are using a personal Gmail account:** Select **External** as the app type. The app will be created in "Testing" mode. You must add your own Gmail address as a test user under **OAuth consent screen > Test users** so that you can authorize the app. This avoids needing to go through Google's verification process.
    - Fill in the required fields (App name, User support email, Developer contact email). The values are only for your own reference.
-   - On the **Scopes** screen, click **Add or Remove Scopes** and add `https://www.googleapis.com/auth/drive.readonly`. This grants the plugin read-only access to Google Drive.
+   - On the **Data access** (or **Scopes**) screen, click **Add or Remove Scopes**, search for `Google Drive API`, and select `.../auth/drive.readonly` ("See and download all your Google Drive files"). Click **Update** to confirm, then save.
    - Complete the remaining steps and save.
 5. Create OAuth 2.0 credentials:
    - Navigate to **APIs & Services > Credentials**
