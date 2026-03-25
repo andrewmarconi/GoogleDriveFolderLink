@@ -1,5 +1,11 @@
 import { requestUrl } from "obsidian";
-import type { DriveFolder, DriveInfo } from "./types";
+import type {
+  DriveFolder,
+  DriveInfo,
+  GoogleDriveListResponse,
+  GoogleFileListResponse,
+  GoogleFileMetadataResponse,
+} from "./types";
 
 const DRIVE_API_BASE = "https://www.googleapis.com/drive/v3";
 
@@ -27,10 +33,10 @@ export async function listSharedDrives(
       url: `${DRIVE_API_BASE}/drives?${params}`,
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    const data = response.json;
+    const data = response.json as GoogleDriveListResponse;
     if (data.drives) {
       drives.push(
-        ...data.drives.map((d: { id: string; name: string }) => ({
+        ...data.drives.map((d) => ({
           id: d.id,
           name: d.name,
         }))
@@ -69,16 +75,14 @@ export async function listFolders(
       url: `${DRIVE_API_BASE}/files?${params}`,
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    const data = response.json;
+    const data = response.json as GoogleFileListResponse;
     if (data.files) {
       folders.push(
-        ...data.files.map(
-          (f: { id: string; name: string; parents?: string[] }) => ({
-            id: f.id,
-            name: f.name,
-            parents: f.parents,
-          })
-        )
+        ...data.files.map((f) => ({
+          id: f.id,
+          name: f.name,
+          parents: f.parents,
+        }))
       );
     }
     pageToken = data.nextPageToken;
@@ -111,14 +115,12 @@ export async function searchFoldersByName(
     url: `${DRIVE_API_BASE}/files?${params}`,
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  const data = response.json;
-  return (data.files ?? []).map(
-    (f: { id: string; name: string; parents?: string[] }) => ({
-      id: f.id,
-      name: f.name,
-      parents: f.parents,
-    })
-  );
+  const data = response.json as GoogleFileListResponse;
+  return (data.files ?? []).map((f) => ({
+    id: f.id,
+    name: f.name,
+    parents: f.parents,
+  }));
 }
 
 export async function getFolderMetadata(
@@ -133,7 +135,7 @@ export async function getFolderMetadata(
     url: `${DRIVE_API_BASE}/files/${validateDriveId(folderId)}?${params}`,
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  return response.json;
+  return response.json as GoogleFileMetadataResponse;
 }
 
 export function buildFolderUrl(folderId: string): string {

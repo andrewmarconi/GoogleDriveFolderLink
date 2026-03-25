@@ -21,7 +21,7 @@ export class DriveSelectModal extends SuggestModal<DriveOption> {
     this.plugin = plugin;
     this.onDone = onDone;
     this.setPlaceholder("Loading drives...");
-    this.loadDrives();
+    void this.loadDrives();
   }
 
   private async loadDrives(): Promise<void> {
@@ -33,10 +33,9 @@ export class DriveSelectModal extends SuggestModal<DriveOption> {
         ...sharedDrives.map((d) => ({ id: d.id, name: d.name })),
       ];
       this.setPlaceholder("Select a drive...");
-      // Trigger re-render
-      if (typeof (this as any).updateSuggestions === "function") {
-        (this as any).updateSuggestions();
-      }
+      // Trigger re-render (updateSuggestions is undocumented on SuggestModal)
+      const self = this as unknown as { updateSuggestions?: () => void };
+      self.updateSuggestions?.();
     } catch (e) {
       new Notice(
         `Failed to load drives: ${e instanceof Error ? e.message : String(e)}`
@@ -85,10 +84,9 @@ class FolderSearchModal extends SuggestModal<DriveFolder> {
           query,
           this.driveId
         );
-        // Trigger re-render
-        if (typeof (this as any).updateSuggestions === "function") {
-          (this as any).updateSuggestions();
-        }
+        // Trigger re-render (updateSuggestions is undocumented on SuggestModal)
+        const self = this as unknown as { updateSuggestions?: () => void };
+        self.updateSuggestions?.();
       } catch (e) {
         new Notice(
           `Search failed: ${e instanceof Error ? e.message : String(e)}`
@@ -141,8 +139,8 @@ class FolderSearchModal extends SuggestModal<DriveFolder> {
     }
 
     this.plugin.settings.roots.push(root);
-    this.plugin.saveSettings();
-    this.plugin.folderCache.crawlSingleRoot(root, () =>
+    void this.plugin.saveSettings();
+    void this.plugin.folderCache.crawlSingleRoot(root, () =>
       this.plugin.getAccessToken()
     );
     new Notice(`Added root: ${folder.name}`);

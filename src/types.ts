@@ -35,6 +35,34 @@ export interface PluginSettings {
   accountEmail: string | null;
 }
 
+// Google API response shapes (used to type requestUrl().json)
+export interface GoogleTokenResponse {
+  access_token: string;
+  refresh_token?: string;
+  expires_in: number;
+  token_type: string;
+}
+
+export interface GoogleAboutResponse {
+  user?: { emailAddress?: string };
+}
+
+export interface GoogleDriveListResponse {
+  nextPageToken?: string;
+  drives?: { id: string; name: string }[];
+}
+
+export interface GoogleFileListResponse {
+  nextPageToken?: string;
+  files?: { id: string; name: string; parents?: string[] }[];
+}
+
+export interface GoogleFileMetadataResponse {
+  id: string;
+  name: string;
+  parents?: string[];
+}
+
 export const DEFAULT_SETTINGS: PluginSettings = {
   clientId: "",
   clientSecret: "",

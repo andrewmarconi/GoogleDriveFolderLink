@@ -18,7 +18,7 @@ export class AttachDriveFolderModal extends FuzzySuggestModal<CachedFolder> {
   private buildInstructions(): { command: string; purpose: string }[] {
     const frontmatter =
       this.app.metadataCache.getFileCache(this.file)?.frontmatter;
-    const currentUrl = frontmatter?.googleDriveFolderUrl;
+    const currentUrl = frontmatter?.["googleDriveFolderUrl"] as string | undefined;
     if (currentUrl) {
       return [{ command: "", purpose: `Currently attached: ${currentUrl}` }];
     }
@@ -51,6 +51,6 @@ export class AttachDriveFolderModal extends FuzzySuggestModal<CachedFolder> {
   }
 
   onChooseItem(item: CachedFolder): void {
-    this.plugin.attachFolderToFile(this.file, item);
+    void this.plugin.attachFolderToFile(this.file, item);
   }
 }

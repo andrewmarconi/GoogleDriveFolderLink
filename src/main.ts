@@ -92,7 +92,7 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
     this.settings = Object.assign(
       {},
       { ...DEFAULT_SETTINGS, roots: [...DEFAULT_SETTINGS.roots] },
-      await this.loadData()
+      (await this.loadData()) as Partial<PluginSettings> | undefined
     );
   }
 
@@ -106,7 +106,7 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
 
   async startDriveAuthFlow(): Promise<void> {
     if (!this.settings.clientId || !this.settings.clientSecret) {
-      new Notice("Please enter Client ID and Client Secret first.");
+      new Notice("Please enter client ID and client secret first.");
       return;
     }
     try {
@@ -143,13 +143,13 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
   removeRoot(rootId: string): void {
     this.settings.roots = this.settings.roots.filter((r) => r.id !== rootId);
     this.folderCache.removeRoot(rootId);
-    this.saveSettings();
+    void this.saveSettings();
   }
 
   openAttachedFolder(file: TFile): void {
     const frontmatter =
       this.app.metadataCache.getFileCache(file)?.frontmatter;
-    const url = frontmatter?.googleDriveFolderUrl;
+    const url = frontmatter?.["googleDriveFolderUrl"] as string | undefined;
     if (!url) {
       new Notice("No Google Drive folder attached to this note.");
       return;
@@ -159,7 +159,7 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
 
   async attachFolderToFile(file: TFile, folder: CachedFolder): Promise<void> {
     const url = buildFolderUrl(folder.id);
-    await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+    await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
       frontmatter["googleDriveFolderUrl"] = url;
     });
     new Notice(`Attached: ${folder.name}`);
@@ -185,7 +185,7 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
       (accessToken, expiresAt) => {
         this.settings.accessToken = accessToken;
         this.settings.tokenExpiry = expiresAt;
-        this.saveSettings();
+        void this.saveSettings();
       }
     );
   }

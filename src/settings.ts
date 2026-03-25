@@ -15,7 +15,7 @@ export class DriveLinkSettingsTab extends PluginSettingTab {
     containerEl.empty();
 
     // --- Connection section ---
-    containerEl.createEl("h2", { text: "Google Drive Connection" });
+    new Setting(containerEl).setName("Google Drive connection").setHeading();
 
     if (this.plugin.isConnected) {
       new Setting(containerEl)
@@ -26,18 +26,18 @@ export class DriveLinkSettingsTab extends PluginSettingTab {
         .setName("Disconnect")
         .setDesc("Remove stored credentials and disconnect from Google Drive.")
         .addButton((btn) => {
-          btn.setButtonText("Disconnect").setWarning().onClick(() => {
-            this.plugin.disconnect();
+          btn.setButtonText("Disconnect").setWarning().onClick(async () => {
+            await this.plugin.disconnect();
             this.display();
           });
         });
     } else {
       new Setting(containerEl)
         .setName("Client ID")
-        .setDesc("From your Google Cloud Console OAuth credentials")
+        .setDesc("From your Google Cloud console OAuth credentials")
         .addText((text) => {
           text
-            .setPlaceholder("Enter Client ID")
+            .setPlaceholder("Enter client ID")
             .setValue(this.plugin.settings.clientId)
             .onChange(async (value) => {
               this.plugin.settings.clientId = value.trim();
@@ -46,12 +46,12 @@ export class DriveLinkSettingsTab extends PluginSettingTab {
         });
 
       new Setting(containerEl)
-        .setName("Client Secret")
-        .setDesc("From your Google Cloud Console OAuth credentials")
+        .setName("Client secret")
+        .setDesc("From your Google Cloud console OAuth credentials")
         .addText((text) => {
           text.inputEl.type = "password";
           text
-            .setPlaceholder("Enter Client Secret")
+            .setPlaceholder("Enter client secret")
             .setValue(this.plugin.settings.clientSecret)
             .onChange(async (value) => {
               this.plugin.settings.clientSecret = value.trim();
@@ -71,7 +71,7 @@ export class DriveLinkSettingsTab extends PluginSettingTab {
     }
 
     // --- Root folders section ---
-    containerEl.createEl("h2", { text: "Search Root Folders" });
+    new Setting(containerEl).setName("Search root folders").setHeading();
 
     if (this.plugin.settings.roots.length === 0) {
       containerEl.createEl("p", {
@@ -95,7 +95,7 @@ export class DriveLinkSettingsTab extends PluginSettingTab {
           });
         })
         .addExtraButton((btn) => {
-          btn.setIcon("trash").setTooltip("Remove root").onClick(async () => {
+          btn.setIcon("trash").setTooltip("Remove root").onClick(() => {
             this.plugin.removeRoot(root.id);
             this.display();
           });
