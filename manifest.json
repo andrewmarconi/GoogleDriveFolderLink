@@ -3,7 +3,7 @@
   "name": "Google Drive Folder Link",
   "version": "1.0.0",
   "minAppVersion": "1.4.0",
-  "description": "Attach Google Drive folders to notes via fuzzy search",
+  "description": "Attach a Google Drive folder to any note via fuzzy search. Search across configured root folders in My Drive and Shared Drives, and access linked folders with one click from the note's properties pane.",
   "author": "Andrew Marconi",
   "isDesktopOnly": true
 }
