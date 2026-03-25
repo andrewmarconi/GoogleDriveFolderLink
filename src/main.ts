@@ -5,6 +5,7 @@ import { buildFolderUrl } from "./driveApi";
 import { DriveLinkSettingsTab } from "./settings";
 import { FolderCache } from "./folderCache";
 import { AttachDriveFolderModal } from "./attachModal";
+import { DriveSelectModal } from "./rootPickerModal";
 
 export default class GoogleDriveFolderLinkPlugin extends Plugin {
   settings: PluginSettings = DEFAULT_SETTINGS;
@@ -128,7 +129,7 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
   }
 
   openRootPickerModal(onDone: () => void): void {
-    new Notice("Root picker not yet implemented");
+    new DriveSelectModal(this, onDone).open();
   }
 
   removeRoot(rootId: string): void {
