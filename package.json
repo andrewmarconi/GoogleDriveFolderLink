@@ -1,6 +1,6 @@
 {
   "name": "google-drive-folder-link",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Obsidian plugin to attach Google Drive folders to notes",
   "main": "main.js",
   "scripts": {
