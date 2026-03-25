@@ -1,6 +1,7 @@
 import { Menu, Notice, Plugin, TAbstractFile, TFile } from "obsidian";
 import { PluginSettings, DEFAULT_SETTINGS, CachedFolder } from "./types";
 import { startAuthFlow, getValidAccessToken } from "./auth";
+import { buildFolderUrl } from "./driveApi";
 import { DriveLinkSettingsTab } from "./settings";
 import { FolderCache } from "./folderCache";
 import { AttachDriveFolderModal } from "./attachModal";
@@ -28,6 +29,25 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
       },
     });
 
+    this.addCommand({
+      id: "open-google-drive-folder",
+      name: "Open attached Google Drive folder",
+      checkCallback: (checking) => {
+        const file = this.app.workspace.getActiveFile();
+        if (file && file.extension === "md") {
+          const frontmatter =
+            this.app.metadataCache.getFileCache(file)?.frontmatter;
+          if (frontmatter?.googleDriveFolderId) {
+            if (!checking) {
+              this.openAttachedFolder(file);
+            }
+            return true;
+          }
+        }
+        return false;
+      },
+    });
+
     this.registerEvent(
       this.app.workspace.on("file-menu", (menu: Menu, file: TAbstractFile) => {
         if (file instanceof TFile && file.extension === "md") {
@@ -39,6 +59,19 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
                 new AttachDriveFolderModal(this, file).open();
               });
           });
+
+          const frontmatter =
+            this.app.metadataCache.getFileCache(file)?.frontmatter;
+          if (frontmatter?.googleDriveFolderId) {
+            menu.addItem((item) => {
+              item
+                .setTitle("Open Google Drive folder")
+                .setIcon("external-link")
+                .onClick(() => {
+                  this.openAttachedFolder(file);
+                });
+            });
+          }
         }
       })
     );
@@ -102,6 +135,18 @@ export default class GoogleDriveFolderLinkPlugin extends Plugin {
     this.settings.roots = this.settings.roots.filter((r) => r.id !== rootId);
     this.folderCache.removeRoot(rootId);
     this.saveSettings();
+  }
+
+  openAttachedFolder(file: TFile): void {
+    const frontmatter =
+      this.app.metadataCache.getFileCache(file)?.frontmatter;
+    const folderId = frontmatter?.googleDriveFolderId;
+    if (!folderId) {
+      new Notice("No Google Drive folder attached to this note.");
+      return;
+    }
+    const url = buildFolderUrl(folderId);
+    window.open(url);
   }
 
   async attachFolderToFile(file: TFile, folder: CachedFolder): Promise<void> {
