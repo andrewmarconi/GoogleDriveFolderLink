@@ -867,7 +867,7 @@ export class DriveLinkSettingsTab extends PluginSettingTab {
     } else {
       new Setting(containerEl)
         .setName("Client ID")
-        .setDesc("From your Google Cloud Console OAuth credentials")
+        .setDesc("From your Google Cloud console OAuth credentials")
         .addText((text) => {
           text
             .setPlaceholder("Enter Client ID")
@@ -880,7 +880,7 @@ export class DriveLinkSettingsTab extends PluginSettingTab {
 
       new Setting(containerEl)
         .setName("Client Secret")
-        .setDesc("From your Google Cloud Console OAuth credentials")
+        .setDesc("From your Google Cloud console OAuth credentials")
         .addText((text) => {
           text
             .setPlaceholder("Enter Client Secret")
