@@ -32,6 +32,11 @@ set_version() {
     && mv manifest.json.tmp manifest.json
   # Update package.json and package-lock.json via npm (no git tag)
   npm version "$new_ver" --no-git-tag-version --allow-same-version > /dev/null 2>&1
+  # Upsert versions.json: map plugin version -> current minAppVersion
+  local min_app
+  min_app=$(jq -r '.minAppVersion' manifest.json)
+  jq --arg v "$new_ver" --arg m "$min_app" '. + {($v): $m}' versions.json \
+    > versions.json.tmp && mv versions.json.tmp versions.json
 }
 
 # --- Preflight checks ---
@@ -80,7 +85,7 @@ esac
 if [[ "$new_ver" != "$ver" ]]; then
   echo "Bumping version: $ver -> $new_ver"
   set_version "$new_ver"
-  git add manifest.json package.json package-lock.json
+  git add manifest.json versions.json package.json package-lock.json
   git commit -m "chore: bump version to $new_ver"
 else
   echo "Keeping version: $ver"

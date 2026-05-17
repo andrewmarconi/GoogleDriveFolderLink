@@ -26,12 +26,24 @@ jobs:
 
       - run: npm run lint
 
-      - name: Verify manifest version matches tag
+      - name: Verify manifest and versions.json match tag
         run: |
-          manifest_version=$(jq -r '.version' manifest.json)
           tag="$GITHUB_REF_NAME"
+          manifest_version=$(jq -r '.version' manifest.json)
+          manifest_min=$(jq -r '.minAppVersion' manifest.json)
+          versions_min=$(jq -r --arg t "$tag" '.[$t] // ""' versions.json)
           if [[ "$manifest_version" != "$tag" ]]; then
             echo "version mismatch: manifest=$manifest_version tag=$tag" >&2
+            exit 1
+          fi
+          if [[ -z "$versions_min" ]]; then
+            echo "versions.json missing entry for $tag" >&2
+            exit 1
+          fi
+          if [[ "$versions_min" != "$manifest_min" ]]; then
+            echo "minAppVersion mismatch:" >&2
+            echo "  manifest=$manifest_min" >&2
+            echo "  versions.json[$tag]=$versions_min" >&2
             exit 1
           fi
 
