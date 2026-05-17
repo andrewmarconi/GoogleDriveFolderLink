@@ -52,7 +52,7 @@ export class DriveSelectModal extends SuggestModal<DriveOption> {
   }
 
   renderSuggestion(option: DriveOption, el: HTMLElement): void {
-    el.createEl("div", { text: option.name });
+    el.createDiv({ text: option.name });
     el.createEl("small", {
       text: option.id ? "Shared Drive" : "Personal",
     });
@@ -118,7 +118,7 @@ class FolderSearchModal extends SuggestModal<DriveFolder> {
   }
 
   renderSuggestion(folder: DriveFolder, el: HTMLElement): void {
-    el.createEl("div", { text: folder.name });
+    el.createDiv({ text: folder.name });
   }
 
   onChooseSuggestion(folder: DriveFolder): void {
