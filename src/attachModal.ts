@@ -46,7 +46,7 @@ export class AttachDriveFolderModal extends FuzzySuggestModal<CachedFolder> {
 
   renderSuggestion(match: FuzzyMatch<CachedFolder>, el: HTMLElement): void {
     const folder = match.item;
-    el.createEl("div", { text: folder.name, cls: "suggestion-title" });
+    el.createDiv({ text: folder.name, cls: "suggestion-title" });
     el.createEl("small", { text: folder.path, cls: "suggestion-note" });
   }
 

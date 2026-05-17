@@ -83,7 +83,7 @@ function listenForAuthCode(
       window.open(authUrl.toString());
     });
 
-    setTimeout(() => {
+    activeWindow.setTimeout(() => {
       server.close();
       reject(new Error("Auth timed out after 120 seconds"));
     }, 120_000);

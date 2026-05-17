@@ -4,7 +4,6 @@ set -euo pipefail
 REPO="andrewmarconi/GoogleDriveFolderLink"
 BASE_BRANCH="main"
 DEV_BRANCH="develop"
-RELEASE_ASSETS=("main.js" "manifest.json" "styles.css")
 
 # --- Helpers ---
 
@@ -88,17 +87,12 @@ else
 fi
 echo
 
-# --- Step 3: Build ---
+# --- Step 3: Build (verify only — CI rebuilds for the release) ---
 
-echo "Building..."
+echo "Building (local verification)..."
 npm run build || die "Build failed."
 echo "Build succeeded."
 echo
-
-# Verify release assets exist
-for asset in "${RELEASE_ASSETS[@]}"; do
-  [[ -f "$asset" ]] || die "Release asset not found: $asset"
-done
 
 # --- Step 4: Push and create PR ---
 
@@ -141,20 +135,27 @@ pr_state=$(gh pr view "$pr_url" --json state -q '.state' 2>/dev/null)
 if [[ "$pr_state" != "MERGED" ]]; then
   die "PR is not merged (state: $pr_state). Aborting release."
 fi
-echo "PR merged. Creating release..."
+echo "PR merged. Tagging release..."
 echo
 
-# --- Step 6: Create release ---
+# --- Step 6: Push tag (triggers the release workflow) ---
 
-gh release create "$new_ver" \
-  --repo "$REPO" \
-  --target "$BASE_BRANCH" \
-  --title "$new_ver" \
-  --generate-notes \
-  "${RELEASE_ASSETS[@]}"
+git fetch origin "$BASE_BRANCH"
+merge_sha=$(git rev-parse "origin/$BASE_BRANCH")
 
+if git rev-parse -q --verify "refs/tags/$new_ver" >/dev/null; then
+  die "Tag '$new_ver' already exists locally. Aborting."
+fi
+if git ls-remote --tags origin "refs/tags/$new_ver" | grep -q .; then
+  die "Tag '$new_ver' already exists on origin. Aborting."
+fi
+
+git tag -a "$new_ver" "$merge_sha" -m "Release $new_ver"
+git push origin "$new_ver"
+
+run_url="https://github.com/$REPO/actions"
 echo
 echo "============================================"
-echo "  Release $new_ver published!"
-echo "  https://github.com/$REPO/releases/tag/$new_ver"
+echo "  Tag $new_ver pushed. Release workflow running."
+echo "  Watch: $run_url"
 echo "============================================"

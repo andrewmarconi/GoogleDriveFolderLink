@@ -111,7 +111,7 @@ export class FolderCache {
 
       // Rate-limit: small delay between batches to respect Drive API quotas
       if (queue.length > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => activeWindow.setTimeout(resolve, 100));
       }
 
       for (const entries of results) {
